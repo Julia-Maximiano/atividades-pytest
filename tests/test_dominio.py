@@ -43,7 +43,7 @@ def test_status_e_somente_leitura():
      with pytest.raises(ValorInvalido):
         nova_tarefa(prioridade="altissima")
     def test_nome_invalido_e_recusado_tambem_depois_da_criacao():
-    usuario = novo_usuario()
+     usuario = novo_usuario()
 
     with pytest.raises(ValorInvalido):
         usuario.nome = "   "

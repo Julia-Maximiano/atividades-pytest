@@ -196,7 +196,8 @@ class Tarefa(Base):
         return self._concluido_em
 
     # -------------------------------------------------------------- operações
-
+if self.concluido_em is not None:
+    return
     def concluir(self, agora: datetime | None = None) -> None:
         """Conclui a tarefa e registra o momento (RN-03).
 

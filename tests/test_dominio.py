@@ -114,3 +114,39 @@ def test_tarefas_pendentes_filtra_as_concluidas():
     )
 
     assert tarefa.concluido_em == original
+
+    #dia 3-não aguento mais essas att
+    from app.exceptions import TituloObrigatorio, ValorInvalido
+
+@pytest.mark.parametrize(
+    "titulo_invalido",
+    ["", "                 "]
+)
+def test_titulo_vazio_e_recusado(titulo_invalido):
+    with pytest.raises(TituloObrigatorio):
+        nova_tarefa(titulo=titulo_invalido)
+
+        @pytest.mark.parametrize(
+    "nome_invalido",
+    ["", "   ", "\t", "\n"]
+)
+def test_nome_vazio_e_recusado(nome_invalido):
+      with pytest.raises(ValorInvalido):
+        novo_usuario(nome=nome_invalido)
+
+        @pytest.mark.parametrize(
+    "informado, esperado",
+    [
+        ("ana@exemplo.com", "ana@exemplo.com"),
+        ("ANA@EXEMPLO.COM", "ana@exemplo.com"),
+        (" ana@exemplo.com ", "ana@exemplo.com"),
+        ("Ana@Exemplo.Com\n", "ana@exemplo.com"),
+    ],
+)
+    def test_normalizar_email_padroniza_espacos_e_maiusculas(
+    informado,
+    esperado
+):
+    assert Usuario.normalizar_email(informado) == esperado
+
+    

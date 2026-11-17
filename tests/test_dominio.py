@@ -80,3 +80,37 @@ def test_status_e_somente_leitura():
 
     tarefa.definir_status(StatusTarefa.PENDENTE)
     assert tarefa.concluido_em is None
+
+    def test_tarefa_concluida_nao_esta_atrasada_mesmo_com_prazo_vencido():
+     tarefa = nova_tarefa(
+        prazo=date.today() - timedelta(days=5)
+    )
+
+    tarefa.concluir()
+
+    assert tarefa.esta_atrasada() is False
+
+def test_tarefas_pendentes_filtra_as_concluidas():
+    usuario = novo_usuario()
+
+    pendente = nova_tarefa(titulo="Pendente")
+    concluida = nova_tarefa(titulo="Concluída")
+
+    concluida.concluir()
+
+    usuario.tarefas = [pendente, concluida]
+
+    assert usuario.tarefas_pendentes() == [pendente]
+
+    def test_concluir_tarefa_ja_concluida_preserva_a_data_original():
+     original = datetime(2026, 1, 10, 9, 0, 0)
+
+    tarefa = nova_tarefa()
+
+    tarefa.concluir(agora=original)
+
+    tarefa.concluir(
+        agora=datetime(2026, 3, 1, 15, 30, 0)
+    )
+
+    assert tarefa.concluido_em == original

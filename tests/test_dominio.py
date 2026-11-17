@@ -42,8 +42,41 @@ def test_status_e_somente_leitura():
     def test_prioridade_invalida_e_recusada():
      with pytest.raises(ValorInvalido):
         nova_tarefa(prioridade="altissima")
-        def test_nome_invalido_e_recusado_tambem_depois_da_criacao():
+    def test_nome_invalido_e_recusado_tambem_depois_da_criacao():
     usuario = novo_usuario()
 
     with pytest.raises(ValorInvalido):
         usuario.nome = "   "
+
+    def test_concluir_registra_a_data():
+     tarefa = nova_tarefa()
+    tarefa.concluir()
+
+    assert tarefa.status is StatusTarefa.CONCLUIDA
+    assert tarefa.concluido_em is not None
+
+    def test_reabrir_apaga_a_data():
+     tarefa = nova_tarefa()
+    tarefa.concluir()
+    tarefa.reabrir()
+
+    assert tarefa.status is StatusTarefa.PENDENTE
+    assert tarefa.concluido_em is None
+
+    def test_editar_outro_campo_nao_mexe_na_data_de_conclusao():
+     tarefa = nova_tarefa()
+    tarefa.concluir(agora=datetime(2026, 1, 10, 9, 0, 0))
+
+    antes = tarefa.concluido_em
+    tarefa.titulo = "Título novo"
+
+    assert tarefa.concluido_em == antes
+
+    def test_definir_status_encaminha_para_a_operacao_correta():
+     tarefa = nova_tarefa()
+
+    tarefa.definir_status("concluida")
+    assert tarefa.concluido_em is not None
+
+    tarefa.definir_status(StatusTarefa.PENDENTE)
+    assert tarefa.concluido_em is None

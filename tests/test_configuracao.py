@@ -1,16 +1,15 @@
 
 import pytest
 
-from app.config import normalizar_url
-(
-    CAMINHO_DO_ENV,
-    ORIGENS_PADRAO,
-    RAIZ_DO_PROJETO,
-    SEGREDO_DE_EXEMPLO,
-    TAMANHO_MINIMO_DO_SEGREDO,
-    Configuracao,
-    normalizar_url
-)
+from app.config import ( 
+    CAMINHO_DO_ENV, 
+    ORIGENS_PADRAO, 
+    RAIZ_DO_PROJETO, 
+    SEGREDO_DE_EXEMPLO, 
+    TAMANHO_MINIMO_DO_SEGREDO, 
+    Configuracao, 
+    normalizar_url, 
+) 
 
 
 @pytest.mark.parametrize(

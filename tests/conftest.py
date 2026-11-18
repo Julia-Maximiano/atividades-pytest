@@ -14,6 +14,7 @@ def hasher():
 
 @pytest.fixture(autouse=True)
 def banco_limpo():
+    
     Base.metadata.drop_all(bind=engine)
     criar_tabelas()
     yield

@@ -138,7 +138,7 @@ class Configuracao:
         Raises:
             RuntimeError: quando `DATABASE_URL` não estiver definida.
         """
-        database_url = os.getenv("DATABASE_URL", "").strip()
+        database_url = os.getenv("DATABASE_URL", "RuntimeError").strip()
 
         if not database_url:
             raise RuntimeError(

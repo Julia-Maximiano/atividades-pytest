@@ -1,10 +1,11 @@
 # Dia 2 — acaba logo senac 
+
 from datetime import date, datetime, timedelta
 
 import pytest
 
 from app.enums import PrioridadeTarefa, StatusTarefa
-from app.exceptions import ValorInvalido
+from app.exceptions import ValorInvalido, TituloObrigatorio
 from app.models import Tarefa, Usuario
 
 
@@ -19,52 +20,69 @@ def nova_tarefa(**ajustes):
     return Tarefa(**dados)
 
 
+def novo_usuario(nome="Ana", email="ana@exemplo.com"):
+    return Usuario(
+        nome=nome,
+        email=email
+    )
+
+
 def test_status_e_somente_leitura():
     tarefa = nova_tarefa()
 
     with pytest.raises(AttributeError):
         tarefa.status = StatusTarefa.CONCLUIDA
 
-    def test_construtor_nao_aceita_status_como_parametro():
-     with pytest.raises(TypeError):
+
+def test_construtor_nao_aceita_status_como_parametro():
+    with pytest.raises(TypeError):
         Tarefa(
             usuario_id=1,
             titulo="X",
             status=StatusTarefa.CONCLUIDA
         )
-    def test_construtor_nao_aceita_senha():
-     with pytest.raises(TypeError):
+
+
+def test_construtor_nao_aceita_senha():
+    with pytest.raises(TypeError):
         Usuario(
             nome="Ana",
             email="ana@exemplo.com",
             senha="senha123"
         )
-    def test_prioridade_invalida_e_recusada():
-     with pytest.raises(ValorInvalido):
+
+
+def test_prioridade_invalida_e_recusada():
+    with pytest.raises(ValorInvalido):
         nova_tarefa(prioridade="altissima")
-    def test_nome_invalido_e_recusado_tambem_depois_da_criacao():
-     usuario = novo_usuario()
+
+
+def test_nome_invalido_e_recusado_tambem_depois_da_criacao():
+    usuario = novo_usuario()
 
     with pytest.raises(ValorInvalido):
         usuario.nome = "   "
 
-    def test_concluir_registra_a_data():
-     tarefa = nova_tarefa()
+
+def test_concluir_registra_a_data():
+    tarefa = nova_tarefa()
     tarefa.concluir()
 
     assert tarefa.status is StatusTarefa.CONCLUIDA
     assert tarefa.concluido_em is not None
 
-    def test_reabrir_apaga_a_data():
-     tarefa = nova_tarefa()
+
+def test_reabrir_apaga_a_data():
+    tarefa = nova_tarefa()
     tarefa.concluir()
     tarefa.reabrir()
 
     assert tarefa.status is StatusTarefa.PENDENTE
     assert tarefa.concluido_em is None
 
-    def test_editar_outro_campo_nao_mexe_na_data_de_conclusao():
-     tarefa = nova_tarefa()
+
+def test_editar_outro_campo_nao_mexe_na_data_de_conclusao():
+    tarefa = nova_tarefa()
     tarefa.concluir(agora=datetime(2026, 1, 10, 9, 0, 0))
 
     antes = tarefa.concluido_em
@@ -72,8 +90,9 @@ def test_status_e_somente_leitura():
 
     assert tarefa.concluido_em == antes
 
-    def test_definir_status_encaminha_para_a_operacao_correta():
-     tarefa = nova_tarefa()
+
+def test_definir_status_encaminha_para_a_operacao_correta():
+    tarefa = nova_tarefa()
 
     tarefa.definir_status("concluida")
     assert tarefa.concluido_em is not None
@@ -81,14 +100,16 @@ def test_status_e_somente_leitura():
     tarefa.definir_status(StatusTarefa.PENDENTE)
     assert tarefa.concluido_em is None
 
-    def test_tarefa_concluida_nao_esta_atrasada_mesmo_com_prazo_vencido():
-     tarefa = nova_tarefa(
+
+def test_tarefa_concluida_nao_esta_atrasada_mesmo_com_prazo_vencido():
+    tarefa = nova_tarefa(
         prazo=date.today() - timedelta(days=5)
     )
 
     tarefa.concluir()
 
     assert tarefa.esta_atrasada() is False
+
 
 def test_tarefas_pendentes_filtra_as_concluidas():
     usuario = novo_usuario()
@@ -102,8 +123,9 @@ def test_tarefas_pendentes_filtra_as_concluidas():
 
     assert usuario.tarefas_pendentes() == [pendente]
 
-    def test_concluir_tarefa_ja_concluida_preserva_a_data_original():
-     original = datetime(2026, 1, 10, 9, 0, 0)
+
+def test_concluir_tarefa_ja_concluida_preserva_a_data_original():
+    original = datetime(2026, 1, 10, 9, 0, 0)
 
     tarefa = nova_tarefa()
 
@@ -115,8 +137,6 @@ def test_tarefas_pendentes_filtra_as_concluidas():
 
     assert tarefa.concluido_em == original
 
-    #dia 3-não aguento mais essas att
-    from app.exceptions import TituloObrigatorio, ValorInvalido
 
 @pytest.mark.parametrize(
     "titulo_invalido",
@@ -126,15 +146,17 @@ def test_titulo_vazio_e_recusado(titulo_invalido):
     with pytest.raises(TituloObrigatorio):
         nova_tarefa(titulo=titulo_invalido)
 
-        @pytest.mark.parametrize(
+
+@pytest.mark.parametrize(
     "nome_invalido",
     ["", "   ", "\t", "\n"]
 )
 def test_nome_vazio_e_recusado(nome_invalido):
-      with pytest.raises(ValorInvalido):
+    with pytest.raises(ValorInvalido):
         novo_usuario(nome=nome_invalido)
 
-        @pytest.mark.parametrize(
+
+@pytest.mark.parametrize(
     "informado, esperado",
     [
         ("ana@exemplo.com", "ana@exemplo.com"),
@@ -143,10 +165,46 @@ def test_nome_vazio_e_recusado(nome_invalido):
         ("Ana@Exemplo.Com\n", "ana@exemplo.com"),
     ],
 )
-    def test_normalizar_email_padroniza_espacos_e_maiusculas(
-    informado,
-    esperado
+def test_normalizar_email_padroniza_espacos_e_maiusculas(
+    informado, esperado
 ):
     assert Usuario.normalizar_email(informado) == esperado
 
-    
+
+def test_a_senha_nao_fica_guardada_em_atributo_algum(hasher):
+    usuario = novo_usuario()
+    usuario.definir_senha("senha123", hasher)
+
+    assert not hasattr(usuario, "senha")
+    assert usuario._senha_hash != "senha123"
+
+
+def test_senha_correta_confere(hasher):
+    usuario = novo_usuario()
+    usuario.definir_senha("senha123", hasher)
+
+    assert usuario.senha_confere("senha123", hasher) is True
+
+
+def test_senha_errada_nao_confere(hasher):
+    usuario = novo_usuario()
+    usuario.definir_senha("senha123", hasher)
+
+    assert usuario.senha_confere("errada", hasher) is False
+
+
+def test_definir_senha_de_novo_substitui_a_anterior(hasher):
+    usuario = novo_usuario()
+    usuario.definir_senha("antiga", hasher)
+    usuario.definir_senha("nova", hasher)
+
+    assert usuario.senha_confere("nova", hasher) is True
+    assert usuario.senha_confere("antiga", hasher) is False
+
+
+def test_repr_nao_expoe_o_hash_da_senha(hasher):
+    usuario = novo_usuario()
+    usuario.definir_senha("senha123", hasher)
+
+    assert "senha123" not in repr(usuario)
+    assert usuario._senha_hash not in repr(usuario)

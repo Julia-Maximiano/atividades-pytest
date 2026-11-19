@@ -52,17 +52,17 @@ def test_email_duplicado_ignora_maiusculas_e_espacos(cliente: TestClient):
         json={**USUARIO_VALIDO, "email": " BRUNO@Exemplo.com "}
     )
 
+    inteiro = resposta.text
+
+    assert "senha123" not in inteiro
+    assert "senhaHash" not in inteiro
+    assert "senha_hash" not in i
     assert resposta.status_code == 409
 
 
 def test_cadastro_nao_expoe_a_senha(cliente: TestClient):
     resposta = cliente.post("/usuarios", json=USUARIO_VALIDO)
-
-    inteiro = resposta.text
-
-    assert "senha123" not in inteiro
-    assert "senhaHash" not in inteiro
-    assert "senha_hash" not in inteiro
+nteiro
 
 def test_email_malformado_devolve_422(cliente: TestClient):
     resposta = cliente.post(

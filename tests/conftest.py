@@ -3,7 +3,6 @@ from app.dependencies import obter_hasher
 from app.main import app
 from app.security import HashBcrypt, HashDeSenha
 
-
 import os
 
 os.environ["DATABASE_URL"] = "sqlite://"
@@ -75,4 +74,15 @@ def sessao_aberta(cliente: TestClient) -> dict:
 @pytest.fixture
 def usuario(sessao_aberta: dict) -> dict:
     return sessao_aberta["usuario"]
+
+
+@pytest.fixture
+def token(sessao_aberta: dict) -> str:
+    return sessao_aberta["accessToken"]
+
+
+@pytest.fixture
+def cliente_logado(cliente: TestClient, token: str) -> TestClient:
+    cliente.headers["Authorization"] = f"Bearer {token}"
+    return cliente
 

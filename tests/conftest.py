@@ -1,3 +1,9 @@
+from fastapi.testclient import TestClient
+from app.dependencies import obter_hasher
+from app.main import app
+from app.security import HashBcrypt, HashDeSenha
+
+
 import os
 
 os.environ["DATABASE_URL"] = "sqlite://"
@@ -30,3 +36,43 @@ def sessao() -> Session:
     finally:
         sessao.rollback()
         sessao.close()
+
+class HashFake(HashDeSenha):
+
+    def gerar(self, senha: str) -> str:
+        return f"fake${senha}"
+
+    def verificar(self, senha: str, hash_armazenado: str) -> bool:
+        return hash_armazenado == self.gerar(senha)
+@pytest.fixture
+def cliente(banco_limpo) -> TestClient:
+
+    app.dependency_overrides[obter_hasher] = HashFake
+
+    try:
+        yield TestClient(app)
+    finally:
+        app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def sessao_aberta(cliente: TestClient) -> dict:
+
+    resposta = cliente.post(
+        "/usuarios",
+        json={
+            "nome": "Ana Souza",
+            "email": "ana@exemplo.com",
+            "senha": "senha123"
+        }
+    )
+
+    assert resposta.status_code == 201, resposta.text
+
+    return resposta.json()
+
+
+@pytest.fixture
+def usuario(sessao_aberta: dict) -> dict:
+    return sessao_aberta["usuario"]
+

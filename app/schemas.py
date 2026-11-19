@@ -104,3 +104,4 @@ class TarefaOut(EsquemaDeSaida):
     criado_em: datetime
     atualizado_em: datetime
     concluido_em: datetime | None
+

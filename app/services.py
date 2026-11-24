@@ -140,10 +140,13 @@ class TarefaServico:
         Raises:
             TarefaNaoEncontrada: se não existir tarefa com este id.
         """
-        tarefa = self._tarefas.buscar_por_id(tarefa_id)
-        if tarefa is None:
-            raise TarefaNaoEncontrada()
-        return tarefa
+        
+if tarefa is None:
+    raise TarefaNaoEncontrada()
+
+if not tarefa.pertence_a(usuario_id):
+    raise AcessoNaoAutorizado()
+
 
     def atualizar(
         self, tarefa_id: int, alteracoes: AlteracoesDaTarefa

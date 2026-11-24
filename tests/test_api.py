@@ -342,3 +342,23 @@ def test_remover_a_mesma_tarefa_duas_vezes_devolve_404(
     assert cliente_logado.delete(
         f"/tasks/{criada['id']}"
     ).status_code == 404
+
+
+# Dia 9 - duas contas
+
+def test_usuario_id_no_corpo_e_ignorado(
+    cliente_logado: TestClient,
+    usuario: dict,
+    outro_usuario: dict
+):
+    resposta = cliente_logado.post(
+        "/tasks",
+        json={
+            "titulo": "Tentativa",
+            "usuarioId": outro_usuario["usuario"]["id"]
+        }
+    )
+
+    assert resposta.status_code == 201
+    assert resposta.json()["usuarioId"] == usuario["id"]
+
